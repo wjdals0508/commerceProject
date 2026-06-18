@@ -1,16 +1,20 @@
-package Object;
+package Model;
 
 public class Product {
+    private static int idCounter = 0;
+    private int id = 0;
     private String name;
     private int price;
     private String contents;
     private int stock;
 
     public Product(String name, int price, String contents, int stock) {
+        this.id = idCounter;
         this.name = name;
         this.price = price;
         this.contents = contents;
         this.stock = stock;
+        idCounter++;
     }
 
     public void setName(String name) {
@@ -25,8 +29,12 @@ public class Product {
         this.contents = contents;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
+    public void reduceStock(int count) {
+        this.stock -= count;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
