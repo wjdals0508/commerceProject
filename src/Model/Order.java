@@ -1,5 +1,8 @@
 package Model;
 
+import VO.Money;
+
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -22,23 +25,30 @@ public class Order {
         }
     }
 
+    private static int idCounter = 0;
+    private final int id;
     private final String customerId;
     private final Map<Product, Integer> products;
-    private final int totalPrice;
+    private final Money totalPrice;
     private State state;
 
     private final Date date = new Date();
 
-    public Order(Map<Product, Integer> products, String customerId, int totalPrice) {
+    public Order(Map<Product, Integer> products, String customerId, Money totalPrice) {
 
-        if (products.isEmpty() || customerId.isEmpty() || totalPrice < 0) {
+        if (products.isEmpty() || customerId.isEmpty() || totalPrice.getAmount() < 0) {
             throw new IllegalArgumentException("옳바르지 않은 요청 입니다.");
         }
-
+        this.id = idCounter;
         this.products = Map.copyOf(products);
         this.customerId = customerId;
-        this.totalPrice = totalPrice;
+        this.totalPrice = new Money(totalPrice.getAmount());
         this.state = State.REQUEST;
+        idCounter++;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setState(State state) {
@@ -53,7 +63,7 @@ public class Order {
         return Map.copyOf(products);
     }
 
-    public int getTotalPrice() {
+    public Money getTotalPrice() {
         return totalPrice;
     }
 

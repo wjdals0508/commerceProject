@@ -50,6 +50,10 @@ public class OrderManager {
 
     public void reduceStock(ShoppingCart shoppingCart) {
 
+        if (shoppingCart == null) {
+            throw new IllegalArgumentException("유효하지 않은 요청입니다.");
+        }
+
         Category category = Category.getInstance();
 
         for (Map.Entry<Product, Integer> entry : shoppingCart.getProducts().entrySet()) {
@@ -58,19 +62,20 @@ public class OrderManager {
         }
     }
 
-    public void cancelOrder(String id, int index) {
+    public void cancelOrder(Order order) {
 
-        List<Order> orderListByUserId = orderList.stream()
-                .filter(x -> x.getCustomerId().equals(id))
-                .toList();
+        Order targetOrder =  orderList.stream()
+                .filter(x -> x.getId() == order.getId())
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("유효하지 않은 주문입니다."));
 
-        Order target = orderListByUserId.get(index);
+        Category category = Category.getInstance();
+        Map<Product, Integer> productMap = targetOrder.getProducts();
 
-        if (target == null) {
-            throw new IllegalArgumentException("유효하지 않은 요청입니다.");
+        for (Map.Entry<Product, Integer> entry : productMap.entrySet()) {
+            category.getProductsById(entry.getKey().getId()).increaseStock(entry.getValue());
         }
 
-        target.cancelState();
+        targetOrder.cancelState();
     }
 
 }

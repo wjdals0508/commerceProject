@@ -9,7 +9,6 @@ public class Customer {
 
     private final ShoppingCart shoppingCart = new ShoppingCart(); // 합성
 
-
     public Customer(String id, String name, String eMail, String grade) {
         this.id = id;
         this.name = name;

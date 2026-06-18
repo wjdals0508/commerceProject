@@ -1,5 +1,8 @@
 package Model;
 
+import VO.Money;
+
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,11 +32,11 @@ public class ShoppingCart {
         products.clear();
     }
 
-    public int getTotalPrice() {
-        int totalPrice = 0;
+    public Money getTotalPrice() {
+        Money totalPrice = new Money(0);
 
         for (Map.Entry<Product,Integer> entry  : products.entrySet()) {
-            totalPrice += entry.getKey().getPrice() * entry.getValue();
+            totalPrice = totalPrice.add(entry.getKey().getPrice().multi( entry.getValue()));
         }
         return totalPrice;
     }
