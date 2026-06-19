@@ -1,5 +1,6 @@
 
 import Manager.Category;
+import Manager.CustomerManager;
 import Manager.OrderManager;
 import Model.*;
 import System.CommerceSystem;
@@ -22,7 +23,8 @@ public class Main {
         category.addProduct(Category.Categories.ELECTRONIC_DEVICES, airPodPro);
 
         Customer user = new Customer("jeongmin0508","윤정민", "wjdals2229@naver.com", "SILVER");
-
+        CustomerManager.getInstance().addCustomer(user)
+        ;
         commerceSystem.start(user);
     }
 }

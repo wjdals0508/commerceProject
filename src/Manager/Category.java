@@ -1,5 +1,6 @@
 package Manager;
 
+import Model.Customer;
 import Model.Product;
 import Model.ShoppingCart;
 import VO.Money;
@@ -68,6 +69,15 @@ public class Category {
     public void deleteProduct(Product product) {
         categoryProducts.get(getCategory(product)).remove(product);
         idProducts.remove(product.getId());
+
+        // 장바구니 모든 상품 제거
+        Map<String, Customer> customers = CustomerManager.getInstance().getCustomers();
+        for (Customer customer : customers.values()) {
+            ShoppingCart shoppingCart = customer.getShoppingCart();
+            if (shoppingCart.getProducts().containsKey(product)) {
+                shoppingCart.removeProducts(product);
+            }
+        }
     }
 
     public Map<Categories, List<Product>> getCategoryProducts() {
