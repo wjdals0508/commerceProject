@@ -1,9 +1,12 @@
 package Manager;
 
-import Model.Order;
-import Model.Customer;
-import Model.Product;
-import Model.ShoppingCart;
+import Model.*;
+import Policy.GoldDiscount;
+import Policy.PlatinumDiscount;
+import Policy.SilverDiscount;
+import Util.PriceCalculator;
+import Policy.BronzeDiscount;
+import VO.Money;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +29,48 @@ public class OrderManager {
     //// 비즈니스 로직 ////
     private final List<Order> orderList = new ArrayList<>();
 
-    public void order(Customer customer) {
+    public Order order(Customer customer) {
 
         ShoppingCart shoppingCart = customer.getShoppingCart();
 
-        shoppingCart.checkStock();
-        reduceStock(shoppingCart);
+        Category category = Category.getInstance();
+        category.checkStock(shoppingCart.getProducts());
+        category.reduceStock(shoppingCart);
 
-        orderList.add(new Order(shoppingCart.getProducts(), customer.getId(), shoppingCart.getTotalPrice()));
+        List<Discount> discountList = new ArrayList<>();
+        Money totalPrice = discount(shoppingCart.getTotalPrice(), customer, discountList);
+
+        Order order = new Order(shoppingCart.getProducts(), customer.getId(), totalPrice, shoppingCart.getTotalPrice(), discountList);
+        orderList.add(order);
 
         shoppingCart.clearProducts();
+
+        return order;
+    }
+
+    private Money discount(Money totalPrice, Customer customer, List<Discount> discountList) {
+
+        Money discountPrice = gradeDiscount(totalPrice, customer, discountList);
+        // TO DO : 기타 할인, 쿠폰 등 추가
+
+        return discountPrice;
+    }
+
+    private Money gradeDiscount(Money totalPrice, Customer customer, List<Discount> discountList) {
+
+        Money discountMoney = new Money(0);
+
+        switch (customer.getGrade()) {
+            case BRONZE -> { discountMoney = PriceCalculator.calculate(totalPrice, new BronzeDiscount()); }
+            case SILVER -> { discountMoney = PriceCalculator.calculate(totalPrice, new SilverDiscount()); }
+            case GOLD -> { discountMoney = PriceCalculator.calculate(totalPrice, new GoldDiscount()); }
+            case PLATINUM -> { discountMoney = PriceCalculator.calculate(totalPrice, new PlatinumDiscount()); }
+        }
+
+        String discountName = customer.getGrade() + " 등급 할인";
+        discountList.add(new Discount(discountName, customer.getGrade().getDiscount(), discountMoney));
+
+        return totalPrice.sub(discountMoney);
     }
 
     public List<Order> getOrderList() {
@@ -46,20 +81,6 @@ public class OrderManager {
         return List.copyOf(orderList.stream()
                 .filter(x -> x.getCustomerId().equals(id))
                 .toList());
-    }
-
-    public void reduceStock(ShoppingCart shoppingCart) {
-
-        if (shoppingCart == null) {
-            throw new IllegalArgumentException("유효하지 않은 요청입니다.");
-        }
-
-        Category category = Category.getInstance();
-
-        for (Map.Entry<Product, Integer> entry : shoppingCart.getProducts().entrySet()) {
-            Product product = category.getProductsById(entry.getKey().getId());
-            category.reduceStock(product, entry.getValue());
-        }
     }
 
     public void cancelOrder(Order order) {

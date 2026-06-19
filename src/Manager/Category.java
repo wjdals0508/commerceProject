@@ -1,6 +1,8 @@
 package Manager;
 
 import Model.Product;
+import Model.ShoppingCart;
+import VO.Money;
 
 import java.util.*;
 
@@ -52,7 +54,6 @@ public class Category {
         }
     }
 
-
     private final Map<Categories, List<Product>> categoryProducts = new HashMap<>();
     private final Map<Integer, Product> idProducts = new HashMap<>();
 
@@ -81,6 +82,23 @@ public class Category {
         return  List.copyOf(categoryProducts.get(category)); // 방어적 복사
     }
 
+    public List<Product> getProductsByCategoryWithFilter(Categories category, Money money, boolean isOver) {
+
+        if (!categoryProducts.containsKey(category))
+            return new ArrayList<>();
+
+        if (isOver) {
+            return  List.copyOf(categoryProducts.get(category).stream()
+                    .filter(x->x.getPrice().isOver(money))
+                    .toList()); // 방어적 복사
+        }
+        else {
+            return  List.copyOf(categoryProducts.get(category).stream()
+                    .filter(x->x.getPrice().islessOrSame(money))
+                    .toList()); // 방어적 복사
+        }
+    }
+
     public Product getProductsById(int id) {
         return  idProducts.get(id);
     }
@@ -105,6 +123,14 @@ public class Category {
                 .orElse(null);
     }
 
+    public void checkStock(Map<Product, Integer> products) {
+        for (Map.Entry<Product,Integer> entry  : products.entrySet()) {
+            if (entry.getKey().getStock() < entry.getValue()) {
+                throw new IllegalArgumentException("[ " + entry.getKey().getName() + " ]의 재고가 부족합니다.");
+            }
+        }
+    }
+
     public void reduceStock(Product product, int count) {
 
         Product target = idProducts.get(product.getId());
@@ -114,6 +140,18 @@ public class Category {
         }
 
         target.reduceStock(count);
+    }
+
+    public void reduceStock(ShoppingCart shoppingCart) {
+
+        if (shoppingCart == null) {
+            throw new IllegalArgumentException("유효하지 않은 요청입니다.");
+        }
+
+        for (Map.Entry<Product, Integer> entry : shoppingCart.getProducts().entrySet()) {
+            Product product = this.getProductsById(entry.getKey().getId());
+            this.reduceStock(product, entry.getValue());
+        }
     }
 
 }

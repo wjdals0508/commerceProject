@@ -1,6 +1,7 @@
 package System;
 
 import Manager.OrderManager;
+import Model.Discount;
 import Model.Product;
 import Manager.Category;
 import Model.Customer;
@@ -8,9 +9,9 @@ import Model.Order;
 import VO.Money;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class CommerceSystem {
@@ -32,6 +33,7 @@ public class CommerceSystem {
 
         public enum Screen {
             MAIN,
+            CATEGORY_FILTER,
             CATEGORY,
             PRODUCT,
             SHOPPING_CART,
@@ -49,6 +51,9 @@ public class CommerceSystem {
         private int scanInt;
         private String scanString;
         private boolean isAdmin = false;
+
+        private Money filterPrice = new Money(0);
+        private boolean filterOver = true;
 
         public UiController() {
             this.screen = Screen.MAIN;
@@ -104,6 +109,22 @@ public class CommerceSystem {
         public void setAdmin(boolean admin) {
             isAdmin = admin;
         }
+
+        public Money getFilterPrice() {
+            return filterPrice;
+        }
+
+        public void setFilterPrice(int filterPrice) {
+            this.filterPrice = new Money(filterPrice);
+        }
+
+        public boolean getFilterOver() {
+            return filterOver;
+        }
+
+        public void setFilterOver(boolean filterOver) {
+            this.filterOver = filterOver;
+        }
     }
 
     //// 비즈니스 로직 ////
@@ -127,7 +148,7 @@ public class CommerceSystem {
         if (scan == 0) ui.setExit();
 
         else if (scan <= SCAN_CATEGORY_MAX) {
-            ui.setScreen(UiController.Screen.CATEGORY);
+            ui.setScreen(UiController.Screen.CATEGORY_FILTER);
             ui.setCategory(scan);
         }
 
@@ -144,12 +165,51 @@ public class CommerceSystem {
         }
     }
 
+    public void categoryFilterScreen(Scanner sc, UiController ui) {
+
+        Category.Categories categoryEnum = Category.Categories.getCategoryByNumber(ui.getCategory());
+
+        System.out.println("\n--[ " + categoryEnum.getString() + " 카테고리 ]--------");
+        System.out.println("1. 전체 상품 보기");
+        System.out.println("2. 가격대 별 필터링");
+        System.out.println("0. 뒤로 가기");
+
+        int scan = sc.nextInt();
+
+        if (scan == 0) {
+            ui.setScreen(UiController.Screen.MAIN);
+        }
+        else if (scan == 2) {
+            System.out.println("\n가격 기준을 입력해주세요.");
+            scan = sc.nextInt();
+            ui.setFilterPrice(scan);
+
+            System.out.println("\n1.초과    2.이하");
+            scan = sc.nextInt();
+            ui.setFilterOver(scan == 1);
+
+            ui.setScreen(UiController.Screen.CATEGORY);
+            ui.setScanInt(2);
+        }
+        else {
+            ui.setScreen(UiController.Screen.CATEGORY);
+            ui.setScanInt(scan);
+        }
+    }
+
     public void categoryScreen(Scanner sc, UiController ui) {
 
         Category category = Category.getInstance();
 
         Category.Categories categoryEnum = Category.Categories.getCategoryByNumber(ui.getCategory());
-        List<Product> products = category.getProductsByCategory(categoryEnum);
+
+        List<Product> products = new ArrayList<>();
+        if (ui.getScanInt() == 2 ) {
+            products = category.getProductsByCategoryWithFilter(categoryEnum, ui.getFilterPrice(), ui.getFilterOver());
+        }
+        else {
+            products = category.getProductsByCategory(categoryEnum);
+        }
 
         System.out.println("\n--[ " + categoryEnum.getString() + " 카테고리 ]--------");
         for (int i = 0; i < products.size(); i++) {
@@ -206,6 +266,7 @@ public class CommerceSystem {
 
         OrderManager orderManager = OrderManager.getInstance();
         Map<Product, Integer> shoppingCartMap = customer.getShoppingCart().getProducts();
+        String totalPrice = customer.getShoppingCart().getTotalPrice().getAmountString();
 
         if (shoppingCartMap.isEmpty()) {
             System.out.println("\n장바구니가 비었습니다.");
@@ -226,12 +287,40 @@ public class CommerceSystem {
         }
         System.out.println("--------------------------------------------------");
         System.out.println("\n[ 총 주문 금액 ]");
-        System.out.println(customer.getShoppingCart().getTotalPrice().getAmountString() + "원");
+        System.out.println(totalPrice + "원");
         System.out.println("\n1. 주문 확정    2. 장바구니 비우기    3. 메인으로 돌아가기");
 
         int functionScan = sc.nextInt();
         switch (functionScan) {
-            case 1 -> orderManager.order(customer);
+            case 1 -> {
+                System.out.println("\n고객 등급을 입력해주세요.");
+                for (int i = 0; i < Customer.Grade.values().length; i++) {
+                    Customer.Grade grade = Customer.Grade.values()[i];
+                    System.out.println(i+1 + ". " + grade.getString() + " :  " + grade.getDiscount() + "% 할인");
+                }
+                functionScan = sc.nextInt();
+
+                customer.setGrade(Customer.Grade.values()[functionScan-1]);
+
+                Order order = orderManager.order(customer);
+
+                System.out.println("\n주문이 완료되었습니다.");
+                System.out.println("할인 전 금액: " + order.getOriginPrice().getAmountString() +"원");
+                for (Discount discount : order.getDiscountList()) {
+                    System.out.println(discount.name() + "(" + discount.rate() + "%): " + "-"
+                            + discount.discountMoney().getAmountString() + "원");
+                }
+                System.out.println("최종 결제 금액: " + order.getTotalPrice().getAmountString() +"원");
+
+                for (Map.Entry<Product, Integer> entry : shoppingCartMap.entrySet()) {
+                    System.out.println(entry.getKey().getName() + "의 재고가 "
+                            + (entry.getKey().getStock()+entry.getValue()) + "개 -> "
+                            + entry.getKey().getStock()
+                            + "개로 업데이트 됐습니다.");
+                }
+                System.out.println("1. 뒤로 가기");
+                int scan = sc.nextInt();
+            }
             case 2 -> {
                 customer.getShoppingCart().clearProducts();
                 System.out.println("장바구니를 비웠습니다.");
@@ -584,6 +673,7 @@ public class CommerceSystem {
                 switch (ui.getScreen()) {
                     case MAIN -> mainScreen(sc, ui);
                     case CATEGORY -> categoryScreen(sc,ui);
+                    case CATEGORY_FILTER -> categoryFilterScreen(sc,ui);
                     case PRODUCT -> productScreen(sc, ui, customer);
                     case SHOPPING_CART -> shoppingCartScreen(sc, ui, customer);
                     case ORDER -> orderScreen(sc, ui, customer);

@@ -2,10 +2,36 @@ package Model;
 
 public class Customer {
 
+    public enum Grade {
+        BRONZE("BRONZE", 0),
+        SILVER("SILVER", 5),
+        GOLD("GOLD", 10),
+        PLATINUM("PLATINUM", 15);
+
+        private final String string;
+        private final int discount;
+
+        Grade(String string, int discountRate) {
+            this.string = string;
+            this.discount = discountRate;
+        }
+        public String getString() {
+            return string;
+        }
+
+        public int getDiscount() {
+            return discount;
+        }
+
+        public double getDiscountRate() {
+            return discount * 0.01;
+        }
+    }
+
     private final String id;
     private String name;
     private String eMail;
-    private String grade;
+    private Grade grade;
 
     private final ShoppingCart shoppingCart = new ShoppingCart(); // 합성
 
@@ -13,7 +39,7 @@ public class Customer {
         this.id = id;
         this.name = name;
         this.eMail = eMail;
-        this.grade = grade;
+        this.grade = Grade.BRONZE;
     }
 
     public void setName(String name) {
@@ -24,7 +50,7 @@ public class Customer {
         this.eMail = eMail;
     }
 
-    public void setGrade(String grade) {
+    public void setGrade(Grade grade) {
         this.grade = grade;
     }
 
@@ -40,7 +66,7 @@ public class Customer {
         return eMail;
     }
 
-    public String getGrade() {
+    public Grade getGrade() {
         return grade;
     }
 

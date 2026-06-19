@@ -36,6 +36,10 @@ public class Money {
         return new Money(this.amount + other.amount);
     }
 
+    public Money sub(Money other) {
+        return new Money(this.amount - other.amount);
+    }
+
     public Money multi(Money other) {
         return new Money(this.amount * other.amount);
     }
@@ -44,4 +48,17 @@ public class Money {
         return new Money(this.amount * other);
     }
 
+    public Money multi(double rate) {
+        if (rate < 0) throw new IllegalArgumentException("배율은 0보다 낮을 수 없습니다.");
+
+        return new Money((long)(this.amount * rate));
+    }
+
+    public boolean isOver(Money other) {
+        return this.amount - other.amount > 0;
+    }
+
+    public boolean islessOrSame(Money other) {
+        return this.amount - other.amount <= 0;
+    }
 }
