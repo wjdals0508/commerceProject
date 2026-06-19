@@ -4,6 +4,7 @@ import VO.Money;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ShoppingCart {
 
@@ -23,7 +24,12 @@ public class ShoppingCart {
         products.merge(product, quantity, Integer::sum);
     }
 
-    public void removeProducts(Product product) {
+    public void removeProducts(String name) {
+
+        Product product = products.keySet().stream()
+                .filter(x -> x.getName().equals(name))
+                .findFirst().orElseThrow(() -> new IllegalStateException("상품을 찾을 수 없습니다."));
+
         products.remove(product);
     }
 

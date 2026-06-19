@@ -29,7 +29,7 @@ public class CommerceSystem {
     }
 
     //// 내부 클래스 ////
-    public class UiController {
+    public static class UiController {
 
         public enum Screen {
             MAIN,
@@ -288,7 +288,7 @@ public class CommerceSystem {
         System.out.println("--------------------------------------------------");
         System.out.println("\n[ 총 주문 금액 ]");
         System.out.println(totalPrice + "원");
-        System.out.println("\n1. 주문 확정    2. 장바구니 비우기    3. 메인으로 돌아가기");
+        System.out.println("\n1. 주문 확정    2.상품 제거    3. 장바구니 비우기    4. 메인으로 돌아가기");
 
         int functionScan = sc.nextInt();
         switch (functionScan) {
@@ -322,6 +322,17 @@ public class CommerceSystem {
                 int scan = sc.nextInt();
             }
             case 2 -> {
+                System.out.println("\n제거할 상품의 이름을 입력해주세요.");
+                String temp = sc.nextLine();
+                String scanStr = sc.nextLine();
+
+                customer.getShoppingCart().removeProducts(scanStr);
+
+                System.out.println("\n장바구니에서 [" + scanStr + "] 상품이 제거되었습니다.");
+                System.out.println("1. 뒤로 가기");
+                int scan = sc.nextInt();
+            }
+            case 3 -> {
                 customer.getShoppingCart().clearProducts();
                 System.out.println("장바구니를 비웠습니다.");
                 System.out.println("1. 뒤로 가기");
