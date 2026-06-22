@@ -3,7 +3,6 @@ package Manager;
 import Model.Customer;
 import Model.Product;
 import Model.ShoppingCart;
-import VO.Money;
 
 import java.util.*;
 
@@ -90,23 +89,6 @@ public class Category {
             return new ArrayList<>();
 
         return  List.copyOf(categoryProducts.get(category)); // 방어적 복사
-    }
-
-    public List<Product> getProductsByCategoryWithFilter(Categories category, Money money, boolean isOver) {
-
-        if (!categoryProducts.containsKey(category))
-            return new ArrayList<>();
-
-        if (isOver) {
-            return  List.copyOf(categoryProducts.get(category).stream()
-                    .filter(x->x.getPrice().isOver(money))
-                    .toList()); // 방어적 복사
-        }
-        else {
-            return  List.copyOf(categoryProducts.get(category).stream()
-                    .filter(x->x.getPrice().islessOrSame(money))
-                    .toList()); // 방어적 복사
-        }
     }
 
     public Product getProductsById(int id) {

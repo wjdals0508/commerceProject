@@ -6,13 +6,14 @@ import Model.Product;
 import Manager.Category;
 import Model.Customer;
 import Model.Order;
+import Util.Util;
 import VO.Money;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Predicate;
 
 public class CommerceSystem {
 
@@ -203,12 +204,16 @@ public class CommerceSystem {
 
         Category.Categories categoryEnum = Category.Categories.getCategoryByNumber(ui.getCategory());
 
-        List<Product> products = new ArrayList<>();
+        List<Product> products = category.getProductsByCategory(categoryEnum);
         if (ui.getScanInt() == 2 ) {
-            products = category.getProductsByCategoryWithFilter(categoryEnum, ui.getFilterPrice(), ui.getFilterOver());
-        }
-        else {
-            products = category.getProductsByCategory(categoryEnum);
+            if (!products.isEmpty()) {
+                Predicate<Product> condition =
+                        ui.getFilterOver()
+                                ? x -> x.getPrice().isOver(ui.getFilterPrice())
+                                : x -> x.getPrice().isLessOrSame(ui.getFilterPrice());
+
+                products = Util.filter(products, condition);
+            }
         }
 
         System.out.println("\n--[ " + categoryEnum.getString() + " 카테고리 ]--------");
@@ -551,7 +556,7 @@ public class CommerceSystem {
                 int newPrice = sc.nextInt();
 
                 Money oldPrice = product.getPrice();
-                product.setPrice(newPrice);
+                product.setPrice(new Money(newPrice));
                 System.out.println("\n" + product.getName() + "의 가격이 "
                         + oldPrice.getAmountString() + "원 -> " + product.getPrice().getAmountString()
                         + "원으로 수정되었습니다.");

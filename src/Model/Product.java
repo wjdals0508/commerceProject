@@ -27,11 +27,11 @@ public class Product {
         this.name = name;
     }
 
-    public void setPrice(int price) {
-        if (price < 0) {
+    public void setPrice(Money price) {
+        if (price.getAmount() < 0) {
             throw new IllegalArgumentException("상품 가격은 0보다 작을 수 없습니다.");
         }
-        this.price = new Money(price);
+        this.price = new Money(price.getAmount());
     }
 
     public void setContents(String contents) {

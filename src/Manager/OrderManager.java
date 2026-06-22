@@ -4,8 +4,8 @@ import Model.*;
 import Policy.GoldDiscount;
 import Policy.PlatinumDiscount;
 import Policy.SilverDiscount;
-import Util.PriceCalculator;
 import Policy.BronzeDiscount;
+import Util.Util;
 import VO.Money;
 
 import java.util.ArrayList;
@@ -61,10 +61,10 @@ public class OrderManager {
         Money discountMoney = new Money(0);
 
         switch (customer.getGrade()) {
-            case BRONZE -> { discountMoney = PriceCalculator.calculate(totalPrice, new BronzeDiscount()); }
-            case SILVER -> { discountMoney = PriceCalculator.calculate(totalPrice, new SilverDiscount()); }
-            case GOLD -> { discountMoney = PriceCalculator.calculate(totalPrice, new GoldDiscount()); }
-            case PLATINUM -> { discountMoney = PriceCalculator.calculate(totalPrice, new PlatinumDiscount()); }
+            case BRONZE -> { discountMoney = Util.calculate(totalPrice, new BronzeDiscount()); }
+            case SILVER -> { discountMoney = Util.calculate(totalPrice, new SilverDiscount()); }
+            case GOLD -> { discountMoney = Util.calculate(totalPrice, new GoldDiscount()); }
+            case PLATINUM -> { discountMoney = Util.calculate(totalPrice, new PlatinumDiscount()); }
         }
 
         String discountName = customer.getGrade() + " 등급 할인";

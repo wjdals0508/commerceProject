@@ -58,7 +58,7 @@ public class Money {
         return this.amount - other.amount > 0;
     }
 
-    public boolean islessOrSame(Money other) {
+    public boolean isLessOrSame(Money other) {
         return this.amount - other.amount <= 0;
     }
 }

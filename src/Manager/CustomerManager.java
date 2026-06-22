@@ -1,10 +1,8 @@
 package Manager;
 
 import Model.Customer;
-import Model.Order;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CustomerManager {
@@ -36,8 +34,4 @@ public class CustomerManager {
     public Map<String, Customer> getCustomers() {
         return Map.copyOf(customers);
     }
-
-
-
-
 }
