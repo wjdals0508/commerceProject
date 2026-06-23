@@ -2,6 +2,7 @@ package Model;
 
 import VO.Money;
 
+// 할인 정보 (record)
 public record Discount(String name, int rate, Money discountMoney) {
 
     public Discount(String name, int rate, Money discountMoney) {

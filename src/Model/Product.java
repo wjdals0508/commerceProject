@@ -2,8 +2,6 @@ package Model;
 
 import VO.Money;
 
-import java.text.DecimalFormat;
-
 public class Product {
     private static int idCounter = 0;
     private int id = 0;

@@ -2,6 +2,7 @@ package Model;
 
 public class Customer {
 
+    // 유저 등급
     public enum Grade {
         BRONZE("BRONZE", 0),
         SILVER("SILVER", 5),

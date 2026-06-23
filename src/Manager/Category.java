@@ -21,6 +21,8 @@ public class Category {
     }
 
     //// 비즈니스 로직 ////
+
+    // 카테고리 Enum
     public enum Categories {
         NONE("분류 없음", 0),
         ELECTRONIC_DEVICES("전자제품", 1),
@@ -54,9 +56,13 @@ public class Category {
         }
     }
 
+    // 카테고리를 키로 하는 상품 목록
     private final Map<Categories, List<Product>> categoryProducts = new HashMap<>();
+    // ID를 키로 하는 상품 목록
     private final Map<Integer, Product> idProducts = new HashMap<>();
 
+
+    // 상품 추가
     public void addProduct(Categories category, Product product) {
 
         categoryProducts.computeIfAbsent(category, key -> new ArrayList<>())
@@ -65,6 +71,7 @@ public class Category {
         idProducts.put(product.getId(), product);
     }
 
+    // 상품 제거
     public void deleteProduct(Product product) {
         categoryProducts.get(getCategory(product)).remove(product);
         idProducts.remove(product.getId());
@@ -80,9 +87,10 @@ public class Category {
     }
 
     public Map<Categories, List<Product>> getCategoryProducts() {
-        return Map.copyOf(categoryProducts);
+        return Map.copyOf(categoryProducts); // 방어적 복사
     }
 
+    // 카테고리로 상품 목록 검색
     public List<Product> getProductsByCategory(Categories category) {
 
         if (!categoryProducts.containsKey(category))
@@ -91,10 +99,12 @@ public class Category {
         return  List.copyOf(categoryProducts.get(category)); // 방어적 복사
     }
 
+    // 상품 id로 상품 검색
     public Product getProductsById(int id) {
         return  idProducts.get(id);
     }
 
+    // 상품 이름으로 상품 검색
     public List<Product> getProductsByName(String name) {
 
         return idProducts.values().stream()
@@ -102,6 +112,7 @@ public class Category {
                 .toList();
     }
 
+    // 특정 상품의 카테고리 검색
     public Categories getCategory(Product product) {
 
         if (product == null) {
@@ -115,6 +126,7 @@ public class Category {
                 .orElse(null);
     }
 
+    // 장바구니 내 상품의 재고 체크
     public void checkStock(Map<Product, Integer> products) {
         for (Map.Entry<Product,Integer> entry  : products.entrySet()) {
             if (entry.getKey().getStock() < entry.getValue()) {
@@ -123,6 +135,7 @@ public class Category {
         }
     }
 
+    // 재고 감소
     public void reduceStock(Product product, int count) {
 
         Product target = idProducts.get(product.getId());
@@ -134,6 +147,7 @@ public class Category {
         target.reduceStock(count);
     }
 
+    // 장바구니 목록에 있는 삼품들의 재고 감소 (다형성)
     public void reduceStock(ShoppingCart shoppingCart) {
 
         if (shoppingCart == null) {

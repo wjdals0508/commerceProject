@@ -21,8 +21,11 @@ public class CustomerManager {
 
 
     //// 비즈니스 로직 ////
+
+    // 유저 목록
     private final Map<String, Customer> customers = new HashMap<>();
 
+    // 유저 추가
     public void addCustomer(Customer customer) {
 
         Customer previous = customers.putIfAbsent(customer.getId(), customer);
@@ -31,6 +34,7 @@ public class CustomerManager {
         }
     }
 
+    // 유저 정보
     public Map<String, Customer> getCustomers() {
         return Map.copyOf(customers);
     }

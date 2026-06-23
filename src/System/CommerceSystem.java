@@ -30,6 +30,7 @@ public class CommerceSystem {
     }
 
     //// 내부 클래스 ////
+    // UI 출력을 위한 클래스
     public static class UiController {
 
         public enum Screen {
@@ -700,6 +701,7 @@ public class CommerceSystem {
                     case ADMIN_ALL_PRODUCT_VIEW -> adminAllProductViewScreen(sc, ui);
                 }
             } catch (Exception e) {
+                // 발생한 모든 런타임 에러 출력
                 System.out.println("\n ****" + e.getMessage() + "**** \n");
             }
         }
